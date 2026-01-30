@@ -1,5 +1,5 @@
 // Simple test to verify login functionality
-const fetch = require('node-fetch');
+// Run with: node test-login.js (after installing node-fetch: npm install node-fetch)
 
 async function testLogin() {
     try {
@@ -35,6 +35,19 @@ async function testLogin() {
 
     } catch (error) {
         console.error('Test failed:', error);
+        console.log('Make sure to install node-fetch: npm install node-fetch');
+        console.log('And ensure the server is running on port 3000');
+    }
+}
+
+// Check if fetch is available (Node.js 18+ has built-in fetch)
+if (typeof fetch === 'undefined') {
+    console.log('Installing node-fetch for testing...');
+    try {
+        global.fetch = require('node-fetch');
+    } catch (err) {
+        console.error('Please install node-fetch: npm install node-fetch');
+        process.exit(1);
     }
 }
 

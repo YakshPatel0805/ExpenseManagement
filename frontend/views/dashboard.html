@@ -17,7 +17,7 @@
                 <p>This is your dashboard page.</p>
                 
                 <div class="user-actions">
-                    <button onclick="logout()" class="login-btn">Logout</button>
+                    <button id="logoutBtn" class="login-btn">Logout</button>
                     <a href="/signup" class="signup-link">Create Another Account</a>
                 </div>
             </div>
@@ -34,17 +34,16 @@
     </div>
 
     <script src="../src/scripts.js"></script>
+    <script src="../src/systemRoutes.js"></script>
+
     <script>
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.href = '/login';
-        }
+        // Server-side authentication check is handled by middleware
+        // This client-side check is just for UX - real security is server-side
         
-        // Check if user is logged in
-        const user = localStorage.getItem('user');
-        if (!user) {
-            window.location.href = '/login';
-        }
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            fetch("/logout", { method: "POST" })
+                .then(() => window.location.href = "/login");
+        });
     </script>
 </body>
 </html>
