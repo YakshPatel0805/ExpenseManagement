@@ -5,6 +5,9 @@ import Signup from "./pages/signup";
 import Wallets from "./pages/wallets";
 import Dashboard from "./pages/dashboard";
 import Expense from "./pages/expense";
+import Accounts from "./pages/accounts";
+import Settings from "./pages/settings";
+import Summary from "./pages/summary";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -33,28 +36,23 @@ function App() {
           } />
           <Route path="/summary" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Summary />
             </ProtectedRoute>
           } />
           <Route path="/accounts" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Accounts />
             </ProtectedRoute>
           } />
           <Route path="/settings" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Settings />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
-//   );
-// }
-
-// export default App;
-    // </BrowserRouter>
   );
 }
 

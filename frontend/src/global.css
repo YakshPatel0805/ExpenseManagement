@@ -928,15 +928,6 @@ select, input[type="checkbox"] {
     border: 1px solid #4a5f7a;
 }
 
-/* Page content switching */
-.page-content {
-    display: none;
-}
-
-.page-content.active {
-    display: block;
-}
-
 /* Consistent spacing */
 .dashboard-header + .stats-grid,
 .dashboard-header + .wallet-cards-grid,
