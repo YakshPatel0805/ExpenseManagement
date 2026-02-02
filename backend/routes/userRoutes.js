@@ -36,8 +36,12 @@ router.get("/signup", (req, res) => {
 });
 
 router.get("/dashboard", isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/views/expense-dashboard.html"));
+  res.sendFile(path.join(__dirname, "../../frontend/views/dashboard.html"));
 });
+
+router.get("/expense", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../frontend/views/expense.html"));
+})
 
 // ================ Post Routes ====================
 // Signup with validation
