@@ -17,31 +17,22 @@ function isAuthenticated(req, res, next) {
   if (req.session.user) {
     next(); // user is logged in
   } else {
-    res.redirect("/login");
+    res.status(401).json({ message: 'Authentication required' });
   }
 }
 
-
-// ================ Get Routes ====================
-router.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/views/index.html"));
+// ================ API Routes ====================
+// Auth status check
+router.get("/api/auth/status", (req, res) => {
+  if (req.session.user) {
+    res.json({ 
+      name: req.session.user.name, 
+      email: req.session.user.email 
+    });
+  } else {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
 });
-
-router.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/views/login.html"));
-});
-
-router.get("/signup", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/views/signup.html"));
-});
-
-router.get("/dashboard", isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/views/dashboard.html"));
-});
-
-router.get("/expense", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/views/expense.html"));
-})
 
 // ================ Post Routes ====================
 // Signup with validation

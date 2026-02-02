@@ -41,7 +41,9 @@ app.use('/signup', authLimiter);
 // Add JSON parser middleware
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-app.use(express.static(path.join(__dirname, 'frontend')))
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, 'frontend/build')))
 
 // Environment variable validation
 if (!process.env.MONGO_URL) {
@@ -75,7 +77,17 @@ app.use(
   })
 );
 
-// routes
+// API routes
 app.use('/', UserRoutes)
+
+// Serve React app for all other routes (SPA behavior)
+app.use((req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/login') || req.path.startsWith('/signup') || req.path.startsWith('/logout')) {
+    return next();
+  }
+  // Serve React app for all other routes
+  res.sendFile(path.join(__dirname, 'frontend/build/index.html'));
+});
 
 app.listen(3000, ()=> console.log('Server Started on http://localhost:3000'))
