@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
 const { body, validationResult } = require('express-validator');
@@ -84,7 +85,10 @@ router.get('/api/transactions/recent', isAuthenticated, async (req, res) => {
 router.get('/api/transactions/stats', isAuthenticated, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const userId = req.session.user.id;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
+
+    console.log('Fetching transaction stats for user:', userId);
+    console.log('Date range:', startDate, 'to', endDate);
 
     const matchQuery = { userId };
     if (startDate || endDate) {
@@ -92,6 +96,8 @@ router.get('/api/transactions/stats', isAuthenticated, async (req, res) => {
       if (startDate) matchQuery.date.$gte = new Date(startDate);
       if (endDate) matchQuery.date.$lte = new Date(endDate);
     }
+
+    console.log('Transaction match query:', matchQuery);
 
     const stats = await Transaction.aggregate([
       { $match: matchQuery },
@@ -103,6 +109,8 @@ router.get('/api/transactions/stats', isAuthenticated, async (req, res) => {
         }
       }
     ]);
+
+    console.log('Transaction stats result:', stats);
 
     // Calculate totals
     const result = {
@@ -128,6 +136,8 @@ router.get('/api/transactions/stats', isAuthenticated, async (req, res) => {
     });
 
     result.netAmount = result.totalIncome - result.totalExpenses;
+
+    console.log('Final transaction stats:', result);
 
     res.json({
       success: true,

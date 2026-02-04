@@ -369,21 +369,7 @@ const Settings = () => {
                                 Enabled
                             </label>
                         </div>
-                        <div className="expense-item">
-                            <div className="category-icon" style={{ background: '#34495e' }}>🌙</div>
-                            <div className="category-details">
-                                <div className="category-name">Dark Mode</div>
-                                <div className="category-description">Use dark theme</div>
-                            </div>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.darkMode}
-                                    onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
-                                /> 
-                                Enabled
-                            </label>
-                        </div>
+                        
                         <div className="expense-item">
                             <div className="category-icon" style={{ background: '#16a085' }}>🔄</div>
                             <div className="category-details">

@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Expense = require('../models/Expense');
 const Wallet = require('../models/Wallet');
@@ -18,7 +19,7 @@ function isAuthenticated(req, res, next) {
 router.get('/api/expenses', isAuthenticated, async (req, res) => {
   try {
     const { page = 1, limit = 10, category, startDate, endDate } = req.query;
-    const userId = req.session.user.id;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
 
     // Build query
     const query = { userId };
@@ -55,7 +56,10 @@ router.get('/api/expenses', isAuthenticated, async (req, res) => {
 router.get('/api/expenses/summary', isAuthenticated, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const userId = req.session.user.id;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
+
+    console.log('Fetching expense summary for user:', userId);
+    console.log('Date range:', startDate, 'to', endDate);
 
     const matchQuery = { userId };
     if (startDate || endDate) {
@@ -63,6 +67,8 @@ router.get('/api/expenses/summary', isAuthenticated, async (req, res) => {
       if (startDate) matchQuery.date.$gte = new Date(startDate);
       if (endDate) matchQuery.date.$lte = new Date(endDate);
     }
+
+    console.log('Match query:', matchQuery);
 
     const summary = await Expense.aggregate([
       { $match: matchQuery },
@@ -76,7 +82,11 @@ router.get('/api/expenses/summary', isAuthenticated, async (req, res) => {
       { $sort: { total: -1 } }
     ]);
 
+    console.log('Expense summary result:', summary);
+
     const totalSpent = summary.reduce((sum, item) => sum + item.total, 0);
+
+    console.log('Total spent:', totalSpent);
 
     res.json({
       success: true,
@@ -105,7 +115,9 @@ router.post('/api/expenses', [
     }
 
     const { title, amount, category, walletId, description, date, tags } = req.body;
-    const userId = req.session.user.id;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
+
+    console.log('Creating expense:', { title, amount, category, walletId, userId });
 
     // Verify wallet belongs to user
     const wallet = await Wallet.findOne({ _id: walletId, userId });

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 const Expense = () => {
@@ -44,6 +45,7 @@ const Expense = () => {
             const data = await response.json();
             if (data.success) {
                 setWallets(data.wallets);
+                // Only set default wallet if form doesn't have one selected
                 if (data.wallets.length > 0 && !formData.walletId) {
                     setFormData(prev => ({ ...prev, walletId: data.wallets[0]._id }));
                 }
@@ -72,8 +74,18 @@ const Expense = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!formData.title.trim() || !formData.amount || !formData.walletId) {
-            alert('Please fill in all required fields');
+        if (!formData.title.trim()) {
+            alert('Please enter a title for the expense');
+            return;
+        }
+        
+        if (!formData.amount || parseFloat(formData.amount) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+        
+        if (!formData.walletId) {
+            alert('Please select an account');
             return;
         }
 
@@ -106,12 +118,36 @@ const Expense = () => {
         }
     };
 
+    const handleDelete = async (expenseId) => {
+        if (window.confirm('Are you sure you want to delete this expense?')) {
+            try {
+                const response = await fetch(`/api/expenses/${expenseId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    await fetchExpenses();
+                    await fetchSummary();
+                    alert('Expense deleted successfully!');
+                } else {
+                    alert(data.message || 'Error deleting expense');
+                }
+            } catch (error) {
+                console.error('Error deleting expense:', error);
+                alert('Network error occurred');
+            }
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             title: '',
             amount: '',
             category: 'food',
-            walletId: wallets.length > 0 ? wallets[0]._id : '',
+            walletId: '', // Reset to empty, will be set when user selects
             description: '',
             date: new Date().toISOString().split('T')[0]
         });
@@ -188,7 +224,23 @@ const Expense = () => {
                             ✕
                         </button>
                     </div>
-                    <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                    
+                    {wallets.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🏦</div>
+                            <h3 style={{ color: '#2c3e50', marginBottom: '0.5rem' }}>No Accounts Available</h3>
+                            <p style={{ color: '#7f8c8d', marginBottom: '1rem' }}>
+                                You need to add an account first before creating expenses.
+                            </p>
+                            <Link to="/accounts" style={{textDecoration: 'none'}}>
+                                <button className="tips-button">
+                                    Add Account First
+                                </button>
+                            </Link>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                            {/* Form content stays the same */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
@@ -268,14 +320,22 @@ const Expense = () => {
                                         width: '100%',
                                         padding: '0.8rem',
                                         border: '1px solid #ddd',
-                                        borderRadius: '4px'
+                                        borderRadius: '4px',
+                                        // backgroundColor: 'white'
                                     }}
                                 >
-                                    {wallets.map(wallet => (
-                                        <option key={wallet._id} value={wallet._id}>
-                                            {wallet.name} ({formatCurrency(wallet.balance)})
-                                        </option>
-                                    ))}
+                                    {wallets.length === 0 ? (
+                                        <option value="">No accounts available</option>
+                                    ) : (
+                                        <>
+                                            <option value="">Select an account</option>
+                                            {wallets.map(wallet => (
+                                                <option key={wallet._id} value={wallet._id}>
+                                                    {wallet.name} ({formatCurrency(wallet.balance)})
+                                                </option>
+                                            ))}
+                                        </>
+                                    )}
                                 </select>
                             </div>
                         </div>
@@ -339,6 +399,7 @@ const Expense = () => {
                             </button>
                         </div>
                     </form>
+                    )}
                 </div>
             )}
 
@@ -413,8 +474,25 @@ const Expense = () => {
                                         {expense.description && ` • ${expense.description}`}
                                     </div>
                                 </div>
-                                <div className="category-amount" style={{color: '#e74c3c'}}>
-                                    -{formatCurrency(expense.amount)}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div className="category-amount" style={{color: '#e74c3c'}}>
+                                        -{formatCurrency(expense.amount)}
+                                    </div>
+                                    <button
+                                        onClick={() => handleDelete(expense._id)}
+                                        style={{
+                                            background: '#e74c3c',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '0.5rem',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            fontSize: '0.8rem'
+                                        }}
+                                        title="Delete expense"
+                                    >
+                                        🗑️
+                                    </button>
                                 </div>
                             </div>
                         ))}

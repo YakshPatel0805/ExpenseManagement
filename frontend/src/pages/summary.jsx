@@ -13,6 +13,7 @@ const Summary = () => {
         }
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [selectedPeriod, setSelectedPeriod] = useState('thisMonth');
 
     useEffect(() => {
@@ -22,38 +23,59 @@ const Summary = () => {
     const fetchSummaryData = async () => {
         try {
             setLoading(true);
+            setError('');
             
             // Get date range based on selected period
             const { startDate, endDate } = getDateRange(selectedPeriod);
             
+            console.log('Fetching summary data for period:', selectedPeriod, 'from', startDate, 'to', endDate);
+            
             // Fetch expense summary
-            const expenseResponse = await fetch(`/api/expenses/summary?startDate=${startDate}&endDate=${endDate}`, {
+            const expenseUrl = `/api/expenses/summary?startDate=${startDate}&endDate=${endDate}`;
+            console.log('Fetching expenses from:', expenseUrl);
+            
+            const expenseResponse = await fetch(expenseUrl, {
                 credentials: 'include'
             });
+            
+            console.log('Expense response status:', expenseResponse.status);
             const expenseData = await expenseResponse.json();
+            console.log('Expense data:', expenseData);
             
             // Fetch transaction stats
-            const statsResponse = await fetch(`/api/transactions/stats?startDate=${startDate}&endDate=${endDate}`, {
+            const statsUrl = `/api/transactions/stats?startDate=${startDate}&endDate=${endDate}`;
+            console.log('Fetching stats from:', statsUrl);
+            
+            const statsResponse = await fetch(statsUrl, {
                 credentials: 'include'
             });
+            
+            console.log('Stats response status:', statsResponse.status);
             const statsData = await statsResponse.json();
+            console.log('Stats data:', statsData);
             
-            if (expenseData.success) {
-                setSummaryData(prev => ({
-                    ...prev,
-                    expenseSummary: expenseData.summary,
-                    totalSpent: expenseData.totalSpent
-                }));
+            // Update state with fetched data
+            const newSummaryData = {
+                expenseSummary: expenseData.success ? expenseData.summary : [],
+                totalSpent: expenseData.success ? expenseData.totalSpent : 0,
+                transactionStats: statsData.success ? statsData.stats : {
+                    totalExpenses: 0,
+                    totalIncome: 0,
+                    netAmount: 0,
+                    transactionCount: 0
+                }
+            };
+            
+            console.log('Setting summary data:', newSummaryData);
+            setSummaryData(newSummaryData);
+            
+            if (!expenseData.success) {
+                setError(expenseData.message || 'Failed to fetch expense data');
             }
             
-            if (statsData.success) {
-                setSummaryData(prev => ({
-                    ...prev,
-                    transactionStats: statsData.stats
-                }));
-            }
         } catch (error) {
             console.error('Error fetching summary data:', error);
+            setError('Network error occurred while fetching data');
         } finally {
             setLoading(false);
         }
@@ -147,18 +169,61 @@ const Summary = () => {
                         <h1 className="dashboard-title">Summary</h1>
                         <p className="dashboard-date">Financial reports and insights</p>
                     </div>
-                    <select 
-                        className="tips-button" 
-                        style={{ height: 'fit-content', background: 'white', color: '#2c3e50' }}
-                        value={selectedPeriod}
-                        onChange={(e) => setSelectedPeriod(e.target.value)}
-                    >
-                        <option value="thisMonth">This Month</option>
-                        <option value="lastMonth">Last Month</option>
-                        <option value="last3Months">Last 3 Months</option>
-                        <option value="thisYear">This Year</option>
-                    </select>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <button 
+                            className="tips-button" 
+                            onClick={fetchSummaryData}
+                            style={{ height: 'fit-content' }}
+                        >
+                            🔄 Refresh
+                        </button>
+                        <select 
+                            className="tips-button" 
+                            style={{ height: 'fit-content', background: 'white', color: '#2c3e50' }}
+                            value={selectedPeriod}
+                            onChange={(e) => setSelectedPeriod(e.target.value)}
+                        >
+                            <option value="thisMonth">This Month</option>
+                            <option value="lastMonth">Last Month</option>
+                            <option value="last3Months">Last 3 Months</option>
+                            <option value="thisYear">This Year</option>
+                        </select>
+                    </div>
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                    <div className="chart-container" style={{ marginBottom: '2rem', background: '#fee' }}>
+                        <div style={{ color: '#e74c3c', textAlign: 'center', padding: '1rem' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
+                            <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Error Loading Data</div>
+                            <div>{error}</div>
+                            <button 
+                                className="tips-button" 
+                                onClick={fetchSummaryData}
+                                style={{ marginTop: '1rem' }}
+                            >
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Debug Info (remove in production) */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div className="chart-container" style={{ marginBottom: '2rem', background: '#f8f9fa' }}>
+                        <h4>Debug Info</h4>
+                        <div style={{ fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                            <div>Loading: {loading.toString()}</div>
+                            <div>Error: {error || 'None'}</div>
+                            <div>Period: {selectedPeriod}</div>
+                            <div>Total Spent: {summaryData.totalSpent}</div>
+                            <div>Expense Categories: {summaryData.expenseSummary.length}</div>
+                            <div>Transaction Count: {summaryData.transactionStats.transactionCount}</div>
+                            <div>Raw Data: {JSON.stringify(summaryData, null, 2)}</div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Summary Cards */}
                 <div style={{
