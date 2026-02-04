@@ -353,7 +353,7 @@ const Settings = () => {
                                     borderRadius: '4px',
                                     textAlign: 'right',
                                     cursor: 'pointer',
-                                    width: '50%'
+                                    width: 'auto'
                                 }}
                             >
                                 <option value="USD">USD ($)</option>
