@@ -1,16 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
+import ExpenseChart from '../components/ExpenseChart';
 
 const Expense = () => {
     const [expenses, setExpenses] = useState([]);
     const [wallets, setWallets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [showIncomeForm, setShowIncomeForm] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         amount: '',
         category: 'food',
+        walletId: '',
+        description: '',
+        date: new Date().toISOString().split('T')[0]
+    });
+    const [incomeData, setIncomeData] = useState({
+        title: '',
+        amount: '',
         walletId: '',
         description: '',
         date: new Date().toISOString().split('T')[0]
@@ -142,6 +151,53 @@ const Expense = () => {
         }
     };
 
+    const handleIncomeSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!incomeData.title.trim()) {
+            alert('Please enter a title for the income');
+            return;
+        }
+        
+        if (!incomeData.amount || parseFloat(incomeData.amount) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+        
+        if (!incomeData.walletId) {
+            alert('Please select an account');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/income', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    ...incomeData,
+                    amount: parseFloat(incomeData.amount)
+                }),
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                await fetchExpenses();
+                await fetchSummary();
+                resetIncomeForm();
+                alert('Income added successfully!');
+            } else {
+                alert(data.message || 'Error adding income');
+            }
+        } catch (error) {
+            console.error('Error adding income:', error);
+            alert('Network error occurred');
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             title: '',
@@ -152,6 +208,17 @@ const Expense = () => {
             date: new Date().toISOString().split('T')[0]
         });
         setShowAddForm(false);
+    };
+
+    const resetIncomeForm = () => {
+        setIncomeData({
+            title: '',
+            amount: '',
+            walletId: '',
+            description: '',
+            date: new Date().toISOString().split('T')[0]
+        });
+        setShowIncomeForm(false);
     };
 
     const getCategoryIcon = (category) => {
@@ -203,13 +270,22 @@ const Expense = () => {
                     <h1 className="dashboard-title">Expenses</h1>
                     <p className="dashboard-date">Track your spending</p>
                 </div>
-                <button 
-                    className="tips-button" 
-                    style={{height: 'fit-content'}}
-                    onClick={() => setShowAddForm(true)}
-                >
-                    + Add Expense
-                </button>
+                <div style={{display: 'flex', gap: '1rem'}}>
+                    <button 
+                        className="tips-button" 
+                        style={{height: 'fit-content'}}
+                        onClick={() => setShowIncomeForm(true)}
+                    >
+                        💵 Add Income
+                    </button>
+                    <button 
+                        className="tips-button" 
+                        style={{height: 'fit-content'}}
+                        onClick={() => setShowAddForm(true)}
+                    >
+                        + Add Expense
+                    </button>
+                </div>
             </div>
 
             {/* Add Expense Form */}
@@ -244,7 +320,7 @@ const Expense = () => {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    Title *
+                                    📝 Title *
                                 </label>
                                 <input
                                     type="text"
@@ -262,7 +338,7 @@ const Expense = () => {
                             </div>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    Amount *
+                                    💰 Amount *
                                 </label>
                                 <input
                                     type="number"
@@ -403,7 +479,180 @@ const Expense = () => {
                 </div>
             )}
 
+            {/* Add Income Form */}
+            {showIncomeForm && (
+                <div className="chart-container" style={{ marginBottom: '2rem' }}>
+                    <div className="chart-header">
+                        <h3 className="chart-title">Add Income</h3>
+                        <button 
+                            onClick={resetIncomeForm}
+                            style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    
+                    {wallets.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🏦</div>
+                            <h3 style={{ color: '#2c3e50', marginBottom: '0.5rem' }}>No Accounts Available</h3>
+                            <p style={{ color: '#7f8c8d', marginBottom: '1rem' }}>
+                                You need to add an account first before adding income.
+                            </p>
+                            <Link to="/accounts" style={{textDecoration: 'none'}}>
+                                <button className="tips-button">
+                                    Add Account First
+                                </button>
+                            </Link>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleIncomeSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                        Income Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={incomeData.title}
+                                        onChange={(e) => setIncomeData({...incomeData, title: e.target.value})}
+                                        placeholder="e.g., Salary, Freelance work"
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.8rem',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px'
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                        Amount *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                        value={incomeData.amount}
+                                        onChange={(e) => setIncomeData({...incomeData, amount: e.target.value})}
+                                        placeholder="0.00"
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.8rem',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                        Account *
+                                    </label>
+                                    <select
+                                        value={incomeData.walletId}
+                                        onChange={(e) => setIncomeData({...incomeData, walletId: e.target.value})}
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.8rem',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px',
+                                            backgroundColor: 'white'
+                                        }}
+                                    >
+                                        <option value="">Select an account</option>
+                                        {wallets.map(wallet => (
+                                            <option key={wallet._id} value={wallet._id}>
+                                                {wallet.name} ({formatCurrency(wallet.balance)})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                        Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={incomeData.date}
+                                        onChange={(e) => setIncomeData({...incomeData, date: e.target.value})}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.8rem',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                    Description
+                                </label>
+                                <input
+                                    type="text"
+                                    value={incomeData.description}
+                                    onChange={(e) => setIncomeData({...incomeData, description: e.target.value})}
+                                    placeholder="Optional notes"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px'
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                                <button
+                                    type="button"
+                                    onClick={resetIncomeForm}
+                                    style={{
+                                        padding: '0.8rem 1.5rem',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        background: 'white',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="tips-button"
+                                    style={{ margin: 0 }}
+                                >
+                                    Add Income
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            )}
+
             <div className="dashboard-grid">
+                {/* Expense Chart */}
+                <div className="chart-container">
+                    <div className="chart-header">
+                        <h3 className="chart-title">Expense</h3>
+                        <span className="chart-period">By Category</span>
+                    </div>
+                    {summary.length > 0 ? (
+                        <ExpenseChart data={summary} />
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📊</div>
+                            <p style={{ color: '#7f8c8d' }}>No expense data to display</p>
+                        </div>
+                    )}
+                </div>
+
                 {/* Expense Summary */}
                 <div className="expense-summary">
                     <div className="summary-header">
@@ -428,15 +677,6 @@ const Expense = () => {
                             <p style={{ color: '#7f8c8d' }}>No expenses yet. Add your first expense to see the breakdown.</p>
                         </div>
                     )}
-                </div>
-
-                {/* Chart Section */}
-                <div className="chart-container">
-                    <div className="chart-header">
-                        <h3 className="chart-title">Expenses</h3>
-                        <span className="chart-period">This Month</span>
-                    </div>
-                    <div className="chart-placeholder">📊</div>
                 </div>
             </div>
 

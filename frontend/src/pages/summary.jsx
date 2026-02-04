@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import ExpenseChart from '../components/ExpenseChart';
 
 const Summary = () => {
     const [summaryData, setSummaryData] = useState({
         expenseSummary: [],
         totalSpent: 0,
+        totalIncome: 0,
         transactionStats: {
             totalExpenses: 0,
             totalIncome: 0,
@@ -15,42 +17,54 @@ const Summary = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedPeriod, setSelectedPeriod] = useState('thisMonth');
+    const [customDateRange, setCustomDateRange] = useState({
+        startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0]
+    });
 
     useEffect(() => {
         fetchSummaryData();
-    }, [selectedPeriod]);
+    }, [selectedPeriod, customDateRange]);
 
     const fetchSummaryData = async () => {
         try {
             setLoading(true);
             setError('');
             
-            // Get date range based on selected period
-            const { startDate, endDate } = getDateRange(selectedPeriod);
+            // Get date range based on selected period or custom dates
+            let startDate, endDate;
+            if (selectedPeriod === 'custom') {
+                startDate = customDateRange.startDate;
+                endDate = customDateRange.endDate;
+            } else {
+                const range = getDateRange(selectedPeriod);
+                startDate = range.startDate;
+                endDate = range.endDate;
+            }
             
             console.log('Fetching summary data for period:', selectedPeriod, 'from', startDate, 'to', endDate);
             
             // Fetch expense summary
             const expenseUrl = `/api/expenses/summary?startDate=${startDate}&endDate=${endDate}`;
-            console.log('Fetching expenses from:', expenseUrl);
-            
             const expenseResponse = await fetch(expenseUrl, {
                 credentials: 'include'
             });
-            
-            console.log('Expense response status:', expenseResponse.status);
             const expenseData = await expenseResponse.json();
             console.log('Expense data:', expenseData);
             
+            // Fetch income summary
+            const incomeUrl = `/api/income/summary?startDate=${startDate}&endDate=${endDate}`;
+            const incomeResponse = await fetch(incomeUrl, {
+                credentials: 'include'
+            });
+            const incomeData = await incomeResponse.json();
+            console.log('Income data:', incomeData);
+            
             // Fetch transaction stats
             const statsUrl = `/api/transactions/stats?startDate=${startDate}&endDate=${endDate}`;
-            console.log('Fetching stats from:', statsUrl);
-            
             const statsResponse = await fetch(statsUrl, {
                 credentials: 'include'
             });
-            
-            console.log('Stats response status:', statsResponse.status);
             const statsData = await statsResponse.json();
             console.log('Stats data:', statsData);
             
@@ -58,6 +72,7 @@ const Summary = () => {
             const newSummaryData = {
                 expenseSummary: expenseData.success ? expenseData.summary : [],
                 totalSpent: expenseData.success ? expenseData.totalSpent : 0,
+                totalIncome: incomeData.success ? incomeData.totalIncome : 0,
                 transactionStats: statsData.success ? statsData.stats : {
                     totalExpenses: 0,
                     totalIncome: 0,
@@ -90,10 +105,6 @@ const Summary = () => {
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
                 break;
-            case 'lastMonth':
-                startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                endDate = new Date(now.getFullYear(), now.getMonth(), 0);
-                break;
             case 'last3Months':
                 startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -101,6 +112,10 @@ const Summary = () => {
             case 'thisYear':
                 startDate = new Date(now.getFullYear(), 0, 1);
                 endDate = new Date(now.getFullYear(), 11, 31);
+                break;
+            case 'lastYear':
+                startDate = new Date(now.getFullYear(), 11, 31);
+                endDate = new Date(now);
                 break;
             default:
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -169,7 +184,7 @@ const Summary = () => {
                         <h1 className="dashboard-title">Summary</h1>
                         <p className="dashboard-date">Financial reports and insights</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                         <button 
                             className="tips-button" 
                             onClick={fetchSummaryData}
@@ -177,19 +192,57 @@ const Summary = () => {
                         >
                             🔄 Refresh
                         </button>
-                        <select 
-                            className="tips-button" 
-                            style={{ height: 'fit-content', background: 'white', color: '#2c3e50' }}
-                            value={selectedPeriod}
-                            onChange={(e) => setSelectedPeriod(e.target.value)}
-                        >
-                            <option value="thisMonth">This Month</option>
-                            <option value="lastMonth">Last Month</option>
-                            <option value="last3Months">Last 3 Months</option>
-                            <option value="thisYear">This Year</option>
-                        </select>
                     </div>
                 </div>
+
+                {/* Custom Date Range */}
+                {selectedPeriod === 'custom' && (
+                    <div className="chart-container" style={{ marginBottom: '2rem' }}>
+                        <div className="chart-header">
+                            <h3 className="chart-title">Select Date Range</h3>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#2c3e50' }}>
+                                    📅 Start Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={customDateRange.startDate}
+                                    onChange={(e) => setCustomDateRange({...customDateRange, startDate: e.target.value})}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        fontSize: '1rem',
+                                        color: '#2c3e50',
+                                        backgroundColor: 'white'
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#2c3e50' }}>
+                                    📅 End Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={customDateRange.endDate}
+                                    onChange={(e) => setCustomDateRange({...customDateRange, endDate: e.target.value})}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        fontSize: '1rem',
+                                        color: '#2c3e50',
+                                        backgroundColor: 'white'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Error Message */}
                 {error && (
@@ -233,27 +286,49 @@ const Summary = () => {
                     marginBottom: '2rem'
                 }}>
                     <div className="chart-container">
-                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Income vs Expenses</h4>
+                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Income</h4>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                             <div>
-                                <div style={{ color: '#2ecc71', fontWeight: 'bold' }}>Income</div>
-                                <div style={{ fontSize: '1.5rem', color: '#2ecc71' }}>
-                                    {formatCurrency(summaryData.transactionStats.totalIncome)}
-                                </div>
-                            </div>
-                            <div>
-                                <div style={{ color: '#e74c3c', fontWeight: 'bold' }}>Expenses</div>
-                                <div style={{ fontSize: '1.5rem', color: '#e74c3c' }}>
-                                    {formatCurrency(summaryData.transactionStats.totalExpenses)}
+                                <div style={{ color: '#2ecc71', fontWeight: 'bold', marginBottom: '0.5rem' }}>Total Income</div>
+                                <div style={{ fontSize: '1.5rem', color: '#2ecc71', fontWeight: 'bold' }}>
+                                    {formatCurrency(summaryData.totalIncome)}
                                 </div>
                             </div>
                         </div>
-                        <div style={{ 
-                            color: summaryData.transactionStats.netAmount >= 0 ? '#2ecc71' : '#e74c3c', 
-                            fontWeight: 'bold' 
-                        }}>
-                            Net: {summaryData.transactionStats.netAmount >= 0 ? '+' : ''}
-                            {formatCurrency(summaryData.transactionStats.netAmount)}
+                    </div>
+
+                    <div className="chart-container">
+                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Expenses</h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                            <div>
+                                <div style={{ color: '#e74c3c', fontWeight: 'bold', marginBottom: '0.5rem' }}>Total Expenses</div>
+                                <div style={{ fontSize: '1.5rem', color: '#e74c3c', fontWeight: 'bold' }}>
+                                    {formatCurrency(summaryData.totalSpent)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="chart-container">
+                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Net Amount</h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                            <div>
+                                <div style={{ 
+                                    color: summaryData.totalIncome - summaryData.totalSpent >= 0 ? '#2ecc71' : '#e74c3c', 
+                                    fontWeight: 'bold',
+                                    marginBottom: '0.5rem'
+                                }}>
+                                    Net Balance
+                                </div>
+                                <div style={{ 
+                                    fontSize: '1.5rem', 
+                                    color: summaryData.totalIncome - summaryData.totalSpent >= 0 ? '#2ecc71' : '#e74c3c', 
+                                    fontWeight: 'bold' 
+                                }}>
+                                    {summaryData.totalIncome - summaryData.totalSpent >= 0 ? '+' : ''}
+                                    {formatCurrency(summaryData.totalIncome - summaryData.totalSpent)}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -265,12 +340,6 @@ const Summary = () => {
                                 <span style={{ fontWeight: 'bold' }}>{summaryData.transactionStats.transactionCount}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <span>Total Spent</span>
-                                <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>
-                                    {formatCurrency(summaryData.totalSpent)}
-                                </span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Period</span>
                                 <span style={{ fontWeight: 'bold' }}>{getPeriodLabel(selectedPeriod)}</span>
                             </div>
@@ -285,7 +354,9 @@ const Summary = () => {
                             <h3 className="chart-title">Expense Breakdown by Category</h3>
                             <span className="chart-period">{getPeriodLabel(selectedPeriod)}</span>
                         </div>
-                        <div className="category-list">
+                        <ExpenseChart data={summaryData.expenseSummary} type="bar" />
+                        
+                        <div className="category-list" style={{ marginTop: '2rem' }}>
                             {summaryData.expenseSummary.map((category, index) => {
                                 const percentage = summaryData.totalSpent > 0 
                                     ? ((category.total / summaryData.totalSpent) * 100).toFixed(1)

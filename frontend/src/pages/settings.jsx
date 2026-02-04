@@ -144,12 +144,13 @@ const Settings = () => {
                         <form onSubmit={handleProfileSubmit} style={{ display: 'grid', gap: '1rem' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    Name
+                                    👤 Name
                                 </label>
                                 <input
                                     type="text"
                                     value={profileData.name}
                                     onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                                    placeholder="Your full name"
                                     required
                                     style={{
                                         width: '100%',
@@ -161,12 +162,13 @@ const Settings = () => {
                             </div>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    Email
+                                    📧 Email
                                 </label>
                                 <input
                                     type="email"
                                     value={profileData.email}
                                     onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                                    placeholder="your.email@example.com"
                                     required
                                     style={{
                                         width: '100%',
@@ -213,12 +215,13 @@ const Settings = () => {
                         <form onSubmit={handlePasswordSubmit} style={{ display: 'grid', gap: '1rem' }}>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    Current Password
+                                    🔒 Current Password
                                 </label>
                                 <input
                                     type="password"
                                     value={passwordData.currentPassword}
                                     onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                                    placeholder="Enter your current password"
                                     required
                                     style={{
                                         width: '100%',
@@ -230,12 +233,13 @@ const Settings = () => {
                             </div>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    New Password
+                                    🔐 New Password
                                 </label>
                                 <input
                                     type="password"
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                                    placeholder="Enter new password (min 8 characters)"
                                     required
                                     minLength="8"
                                     style={{
@@ -248,12 +252,13 @@ const Settings = () => {
                             </div>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                    Confirm New Password
+                                    ✓ Confirm New Password
                                 </label>
                                 <input
                                     type="password"
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                                    placeholder="Confirm your new password"
                                     required
                                     minLength="8"
                                     style={{
@@ -344,7 +349,11 @@ const Settings = () => {
                                     fontSize: '0.9rem',
                                     background: '#34495e',
                                     color: '#ecf0f1',
-                                    border: '1px solid #4a5f7a'
+                                    border: '1px solid #4a5f7a',
+                                    borderRadius: '4px',
+                                    textAlign: 'right',
+                                    cursor: 'pointer',
+                                    width: '50%'
                                 }}
                             >
                                 <option value="USD">USD ($)</option>

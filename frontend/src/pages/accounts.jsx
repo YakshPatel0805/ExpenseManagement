@@ -48,6 +48,11 @@ const Accounts = () => {
             return;
         }
         
+        if (!formData.accountNumber.trim()) {
+            alert('Account number is required');
+            return;
+        }
+        
         try {
             const url = editingWallet ? `/api/wallets/${editingWallet._id}` : '/api/wallets';
             const method = editingWallet ? 'PUT' : 'POST';
@@ -231,12 +236,13 @@ const Accounts = () => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                        Account Name *
+                                        🏦 Account Name *
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.name}
                                         onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                        placeholder="e.g., My Savings"
                                         required
                                         style={{
                                             width: '100%',
@@ -248,7 +254,7 @@ const Accounts = () => {
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                        Account Type *
+                                        💳 Account Type *
                                     </label>
                                     <select
                                         value={formData.type}
@@ -274,13 +280,14 @@ const Accounts = () => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                        Current Balance
+                                        💰 Current Balance
                                     </label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         value={formData.balance}
                                         onChange={(e) => setFormData({...formData, balance: e.target.value})}
+                                        placeholder="0.00"
                                         style={{
                                             width: '100%',
                                             padding: '0.8rem',
@@ -291,12 +298,34 @@ const Accounts = () => {
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                        Bank Name
+                                        🏛️ Bank Name
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.bankName}
                                         onChange={(e) => setFormData({...formData, bankName: e.target.value})}
+                                        placeholder="e.g., Chase Bank"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.8rem',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                        🔢 Account Number *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.accountNumber}
+                                        onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
+                                        placeholder="e.g., 1234567890"
+                                        required
                                         style={{
                                             width: '100%',
                                             padding: '0.8rem',
@@ -310,13 +339,14 @@ const Accounts = () => {
                             {formData.type === 'credit_card' && (
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                        Credit Limit
+                                        💳 Credit Limit
                                     </label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         value={formData.creditLimit}
                                         onChange={(e) => setFormData({...formData, creditLimit: e.target.value})}
+                                        placeholder="0.00"
                                         style={{
                                             width: '100%',
                                             padding: '0.8rem',
