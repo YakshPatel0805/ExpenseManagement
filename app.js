@@ -1,6 +1,9 @@
 const express = require('express')
 const path = require('path')
 const UserRoutes = require('./backend/routes/userRoutes')
+const ExpenseRoutes = require('./backend/routes/expenseRoutes')
+const WalletRoutes = require('./backend/routes/walletRoutes')
+const TransactionRoutes = require('./backend/routes/transactionRoutes')
 const mongoose = require('mongoose')
 const session = require("express-session");
 const helmet = require('helmet');
@@ -79,6 +82,9 @@ app.use(
 
 // API routes
 app.use('/', UserRoutes)
+app.use('/', ExpenseRoutes)
+app.use('/', WalletRoutes)
+app.use('/', TransactionRoutes)
 
 // Serve React app for all other routes (SPA behavior)
 app.use((req, res, next) => {

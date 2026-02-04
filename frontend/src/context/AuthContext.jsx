@@ -21,7 +21,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('/api/auth/status');
+      const response = await fetch('/api/auth/status', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -40,16 +42,18 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
+      const data = await response.json();
+      
+      if (data.success) {
+        // After successful login, get user data
+        await checkAuthStatus();
         return { success: true };
       } else {
-        const error = await response.json();
-        return { success: false, error: error.message };
+        return { success: false, error: data.message };
       }
     } catch (error) {
       return { success: false, error: 'Network error occurred' };
@@ -63,16 +67,17 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ name, email, password }),
       });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        return { success: true };
+      const data = await response.json();
+      
+      if (data.success) {
+        // After successful signup, login the user
+        return await login(email, password);
       } else {
-        const error = await response.json();
-        return { success: false, error: error.message };
+        return { success: false, error: data.message };
       }
     } catch (error) {
       return { success: false, error: 'Network error occurred' };
@@ -81,7 +86,10 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch('/logout', { method: 'POST' });
+      await fetch('/logout', { 
+        method: 'POST',
+        credentials: 'include'
+      });
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);

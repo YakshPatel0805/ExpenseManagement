@@ -19,36 +19,12 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/expenses" element={
-            <ProtectedRoute>
-              <Expense />
-            </ProtectedRoute>
-          } />
-          <Route path="/wallets" element={
-            <ProtectedRoute>
-              <Wallets />
-            </ProtectedRoute>
-          } />
-          <Route path="/summary" element={
-            <ProtectedRoute>
-              <Summary />
-            </ProtectedRoute>
-          } />
-          <Route path="/accounts" element={
-            <ProtectedRoute>
-              <Accounts />
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          } />
+          <Route path="/dashboard" element={ <ProtectedRoute> <Dashboard /> </ProtectedRoute> } />
+          <Route path="/expenses" element={ <ProtectedRoute> <Expense /> </ProtectedRoute> } />
+          <Route path="/wallets" element={ <ProtectedRoute> <Wallets /> </ProtectedRoute> } />
+          <Route path="/summary" element={ <ProtectedRoute> <Summary /> </ProtectedRoute> } />
+          <Route path="/accounts" element={ <ProtectedRoute> <Accounts /> </ProtectedRoute> } />
+          <Route path="/settings" element={ <ProtectedRoute> <Settings /> </ProtectedRoute> } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

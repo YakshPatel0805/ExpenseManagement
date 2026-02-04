@@ -34,6 +34,90 @@ router.get("/api/auth/status", (req, res) => {
   }
 });
 
+// Update profile
+router.put("/api/profile", [
+  body('name').trim().isLength({ min: 2, max: 50 }).escape(),
+  body('email').isEmail().normalizeEmail()
+], isAuthenticated, async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ success: false, message: "Invalid input data" });
+    }
+
+    const { name, email } = req.body;
+    const userId = req.session.user.id;
+
+    // Check if email is already taken by another user
+    const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+    if (existingUser) {
+      return res.json({ success: false, message: "Email already in use" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, email },
+      { new: true }
+    ).select('-password');
+
+    // Update session
+    req.session.user.name = updatedUser.name;
+    req.session.user.email = updatedUser.email;
+
+    res.json({ success: true, message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.json({ success: false, message: "Server error" });
+  }
+});
+
+// Change password
+router.put("/api/change-password", [
+  body('currentPassword').notEmpty(),
+  body('newPassword').isLength({ min: 8 })
+], isAuthenticated, async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.json({ success: false, message: "Invalid input data" });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.session.user.id;
+
+    // Get user with password
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.json({ success: false, message: "Current password is incorrect" });
+    }
+
+    // Check new password strength
+    if (!isStrong(newPassword)) {
+      return res.json({
+        success: false,
+        message: "Password must be at least 8 characters and include uppercase, lowercase, number and special character"
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await User.findByIdAndUpdate(userId, { password: hashedPassword });
+
+    res.json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.json({ success: false, message: "Server error" });
+  }
+});
+
 // ================ Post Routes ====================
 // Signup with validation
 router.post("/signup", [

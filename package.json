@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "connect-mongo": "^6.0.0",
     "dotenv": "^16.4.5",
     "express": "^5.2.1",
     "express-rate-limit": "^7.1.5",
@@ -20,13 +21,22 @@
     "express-validator": "^7.3.1",
     "helmet": "^7.1.0",
     "mongoose": "^9.1.5",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "7.2.0",
     "nodemon": "^3.0.0"
   },
-  "keywords": ["expense-tracker", "react", "spa", "express", "mongodb"],
+  "keywords": [
+    "expense-tracker",
+    "react",
+    "spa",
+    "express",
+    "mongodb"
+  ],
   "description": "Expense Tracker React SPA with Express.js backend",
   "author": "",
   "license": "ISC",

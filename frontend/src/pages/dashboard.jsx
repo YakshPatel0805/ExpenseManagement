@@ -1,6 +1,70 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 
 const Dashboard = () => {
+    const [walletSummary, setWalletSummary] = useState({
+        totalBalance: 0,
+        totalWallets: 0,
+        walletsByType: []
+    });
+    const [expenseStats, setExpenseStats] = useState({
+        totalSpent: 0,
+        expenseCount: 0
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchWalletSummary();
+        fetchExpenseStats();
+    }, []);
+
+    const fetchWalletSummary = async () => {
+        try {
+            const response = await fetch('/api/wallets/summary', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                setWalletSummary(data.summary);
+            }
+        } catch (error) {
+            console.error('Error fetching wallet summary:', error);
+        }
+    };
+
+    const fetchExpenseStats = async () => {
+        try {
+            // Get current month expenses
+            const now = new Date();
+            const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+            
+            const response = await fetch(`/api/expenses/summary?startDate=${startDate}&endDate=${endDate}`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                setExpenseStats({
+                    totalSpent: data.totalSpent,
+                    expenseCount: data.summary.reduce((sum, cat) => sum + cat.count, 0)
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching expense stats:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount);
+    };
     return (
         <DashboardLayout>
             <div className="dashboard-header">
@@ -14,21 +78,29 @@ const Dashboard = () => {
             <div className="stats-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem'}}>
                 <div className="chart-container" style={{textAlign: 'center'}}>
                     <div style={{fontSize: '2.5rem', color: '#e74c3c', marginBottom: '0.5rem'}}>💸</div>
-                    <div style={{fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50'}}>$2,847</div>
+                    <div style={{fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50'}}>
+                        {loading ? '...' : formatCurrency(expenseStats.totalSpent)}
+                    </div>
                     <div style={{color: '#7f8c8d'}}>Total Spent</div>
                     <div style={{color: '#e74c3c', fontSize: '0.9rem', marginTop: '0.5rem'}}>This Month</div>
                 </div>
                 
                 <div className="chart-container" style={{textAlign: 'center'}}>
                     <div style={{fontSize: '2.5rem', color: '#2ecc71', marginBottom: '0.5rem'}}>💰</div>
-                    <div style={{fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50'}}>$5,240</div>
+                    <div style={{fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50'}}>
+                        {loading ? '...' : formatCurrency(walletSummary.totalBalance)}
+                    </div>
                     <div style={{color: '#7f8c8d'}}>Total Balance</div>
-                    <div style={{color: '#2ecc71', fontSize: '0.9rem', marginTop: '0.5rem'}}>All Accounts</div>
+                    <div style={{color: '#2ecc71', fontSize: '0.9rem', marginTop: '0.5rem'}}>
+                        {walletSummary.totalWallets} Account{walletSummary.totalWallets !== 1 ? 's' : ''}
+                    </div>
                 </div>
                 
                 <div className="chart-container" style={{textAlign: 'center'}}>
                     <div style={{fontSize: '2.5rem', color: '#3498db', marginBottom: '0.5rem'}}>📊</div>
-                    <div style={{fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50'}}>127</div>
+                    <div style={{fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50'}}>
+                        {loading ? '...' : expenseStats.expenseCount}
+                    </div>
                     <div style={{color: '#7f8c8d'}}>Transactions</div>
                     <div style={{color: '#3498db', fontSize: '0.9rem', marginTop: '0.5rem'}}>This Month</div>
                 </div>
@@ -57,10 +129,16 @@ const Dashboard = () => {
                         <h3 className="summary-title">Quick Actions</h3>
                     </div>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                        <button className="tips-button">Add New Expense</button>
+                        <Link to="/expenses" style={{textDecoration: 'none'}}>
+                            <button className="tips-button" style={{width: '100%'}}>Add New Expense</button>
+                        </Link>
                         <button className="tips-button">Transfer Money</button>
-                        <button className="tips-button">View Reports</button>
-                        <button className="tips-button">Manage Accounts</button>
+                        <Link to="/summary" style={{textDecoration: 'none'}}>
+                            <button className="tips-button" style={{width: '100%'}}>View Reports</button>
+                        </Link>
+                        <Link to="/accounts" style={{textDecoration: 'none'}}>
+                            <button className="tips-button" style={{width: '100%'}}>Manage Accounts</button>
+                        </Link>
                     </div>
                 </div>
             </div>
