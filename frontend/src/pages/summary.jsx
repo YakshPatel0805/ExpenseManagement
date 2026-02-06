@@ -16,15 +16,31 @@ const Summary = () => {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [selectedPeriod, setSelectedPeriod] = useState('thisMonth');
-    const [customDateRange, setCustomDateRange] = useState({
-        startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0]
+    const [selectedPeriod, setSelectedPeriod] = useState(() => {
+        return sessionStorage.getItem('summaryPeriod') || 'thisMonth';
+    });
+    const [customDateRange, setCustomDateRange] = useState(() => {
+        const saved = sessionStorage.getItem('summaryCustomDateRange');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return {
+            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+            endDate: new Date().toISOString().split('T')[0]
+        };
     });
 
     useEffect(() => {
         fetchSummaryData();
     }, [selectedPeriod, customDateRange]);
+
+    useEffect(() => {
+        sessionStorage.setItem('summaryPeriod', selectedPeriod);
+    }, [selectedPeriod]);
+
+    useEffect(() => {
+        sessionStorage.setItem('summaryCustomDateRange', JSON.stringify(customDateRange));
+    }, [customDateRange]);
 
     const fetchSummaryData = async () => {
         try {
@@ -150,6 +166,9 @@ const Summary = () => {
     };
 
     const getPeriodLabel = (period) => {
+        if (period === 'custom') {
+            return `${customDateRange.startDate} to ${customDateRange.endDate}`;
+        }
         const labels = {
             thisMonth: 'This Month',
             lastMonth: 'Last Month',
