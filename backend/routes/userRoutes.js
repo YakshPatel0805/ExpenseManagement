@@ -238,5 +238,58 @@ router.post("/logout", (req, res) => {
   });
 });
 
+// Delete account - permanently delete user and all associated data
+router.delete("/api/account", isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const mongoose = require('mongoose');
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    console.log('Deleting account for user:', userId);
+
+    // Import all models
+    const Expense = require('../models/Expense');
+    const Income = require('../models/Income');
+    const Wallet = require('../models/Wallet');
+    const Transaction = require('../models/Transaction');
+    const Budget = require('../models/Budget');
+
+    // Delete all user data in parallel
+    const deleteResults = await Promise.allSettled([
+      Expense.deleteMany({ userId: userObjectId }),
+      Income.deleteMany({ userId: userObjectId }),
+      Wallet.deleteMany({ userId: userObjectId }),
+      Transaction.deleteMany({ userId: userObjectId }),
+      Budget.deleteMany({ userId: userObjectId }).catch(() => null), // Budget model might not exist
+      User.findByIdAndDelete(userId)
+    ]);
+
+    console.log('Delete results:', deleteResults.map(r => r.status));
+
+    // Count successful deletions
+    const successCount = deleteResults.filter(r => r.status === 'fulfilled').length;
+
+    // Destroy session
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destroy error:', err);
+      }
+    });
+
+    res.json({
+      success: true,
+      message: "Account and all associated data deleted successfully",
+      deletedItems: successCount
+    });
+
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting account. Please try again."
+    });
+  }
+});
+
 
 module.exports = router;

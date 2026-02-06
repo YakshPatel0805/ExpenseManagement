@@ -242,6 +242,71 @@ const Settings = () => {
         window.URL.revokeObjectURL(url);
     };
 
+    const handleDeleteAccount = async () => {
+        // First confirmation
+        const firstConfirm = window.confirm(
+            '⚠️ WARNING: This will permanently delete your account and ALL data!\n\n' +
+            'This includes:\n' +
+            '• All expenses and income records\n' +
+            '• All accounts/wallets\n' +
+            '• All transactions\n' +
+            '• Your user profile\n\n' +
+            'This action CANNOT be undone!\n\n' +
+            'Click OK to continue, or Cancel to keep your account.'
+        );
+
+        if (!firstConfirm) {
+            return;
+        }
+
+        // Second confirmation with typing requirement
+        const confirmText = prompt(
+            'To confirm deletion, please type: DELETE MY ACCOUNT\n\n' +
+            '(Type exactly as shown, in capital letters)'
+        );
+
+        if (confirmText !== 'DELETE MY ACCOUNT') {
+            alert('Account deletion cancelled. The text did not match.');
+            return;
+        }
+
+        // Final confirmation
+        const finalConfirm = window.confirm(
+            'This is your FINAL warning!\n\n' +
+            'Are you absolutely sure you want to delete your account?\n\n' +
+            'Click OK to permanently delete everything, or Cancel to keep your account.'
+        );
+
+        if (!finalConfirm) {
+            alert('Account deletion cancelled.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/account', {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(
+                    '✅ Account Deleted Successfully\n\n' +
+                    'Your account and all associated data have been permanently deleted.\n\n' +
+                    'You will now be redirected to the home page.'
+                );
+                // Redirect to home page
+                window.location.href = '/';
+            } else {
+                alert('Error: ' + (data.message || 'Failed to delete account. Please try again.'));
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            alert('Network error occurred. Please check your connection and try again.');
+        }
+    };
+
     return (
         <DashboardLayout>
             <div id="settings-page" className="page-content">
@@ -553,11 +618,7 @@ const Settings = () => {
                                     fontSize: '0.9rem', 
                                     background: '#e74c3c' 
                                 }}
-                                onClick={() => {
-                                    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                                        alert('Account deletion feature coming soon!');
-                                    }
-                                }}
+                                onClick={handleDeleteAccount}
                             >
                                 Delete
                             </button>
