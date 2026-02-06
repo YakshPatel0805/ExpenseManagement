@@ -145,35 +145,6 @@ class ApiService {
     return this.request(`/api/transactions/${transactionId}`);
   }
 
-  // Budget methods
-  static async getBudgets() {
-    return this.request('/api/budgets');
-  }
-
-  static async createBudget(budgetData) {
-    return this.request('/api/budgets', {
-      method: 'POST',
-      body: JSON.stringify(budgetData),
-    });
-  }
-
-  static async updateBudget(budgetId, budgetData) {
-    return this.request(`/api/budgets/${budgetId}`, {
-      method: 'PUT',
-      body: JSON.stringify(budgetData),
-    });
-  }
-
-  static async deleteBudget(budgetId) {
-    return this.request(`/api/budgets/${budgetId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  static async getBudgetStatus(budgetId) {
-    return this.request(`/api/budgets/${budgetId}/status`);
-  }
-
   // Category methods
   static async getCategories() {
     return this.request('/api/categories');
