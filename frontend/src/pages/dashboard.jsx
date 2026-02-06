@@ -22,9 +22,13 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        fetchAllData();
+    }, []);
+
+    const fetchAllData = () => {
         fetchWalletSummary();
         fetchExpenseStats();
-    }, []);
+    };
 
     const fetchWalletSummary = async () => {
         try {
@@ -89,6 +93,13 @@ const Dashboard = () => {
                     <h1 className="dashboard-title">Dashboard</h1>
                     <p className="dashboard-date">Welcome back, here's your financial summary</p>
                 </div>
+                <button 
+                    className="tips-button" 
+                    onClick={fetchAllData}
+                    style={{ height: 'fit-content' }}
+                >
+                    🔄 Refresh
+                </button>
             </div>
 
             {/* Quick Stats */}

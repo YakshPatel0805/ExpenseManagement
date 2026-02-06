@@ -7,7 +7,13 @@ A modern expense tracking application built with React frontend and Express.js b
 - 🔐 User authentication (signup/login)
 - 📊 Dashboard with financial overview
 - 💰 Expense tracking and categorization
-- 👛 Multi-wallet support
+- 💵 Income tracking and management
+- 👛 Multi-wallet/account support
+- 💸 Money transfer between accounts
+- 📥 **CSV Import** - Bulk import expenses/income from CSV files
+- 📈 Data visualization with charts (Chart.js)
+- 📅 Custom date range filtering
+- 🎯 Budget tracking with progress indicators
 - 📱 Responsive design
 - 🔒 Secure session management
 - ⚡ Single Page Application (SPA) behavior
@@ -18,6 +24,8 @@ A modern expense tracking application built with React frontend and Express.js b
 - React 18
 - React Router DOM v7
 - Context API for state management
+- Chart.js + react-chartjs-2 for data visualization
+- PapaParse for CSV parsing
 - CSS3 with responsive design
 
 ### Backend
@@ -126,7 +134,46 @@ expense-tracker/
 - `POST /logout` - User logout
 - `GET /api/auth/status` - Check authentication status
 
+### Expenses
+- `GET /api/expenses` - Get all expenses
+- `GET /api/expenses/summary` - Get expense summary by category
+- `POST /api/expenses` - Create new expense
+- `POST /api/expenses/bulk` - Bulk import expenses from CSV
+- `PUT /api/expenses/:id` - Update expense
+- `DELETE /api/expenses/:id` - Delete expense
+
+### Income
+- `GET /api/income` - Get all income
+- `GET /api/income/summary` - Get income summary
+- `POST /api/income` - Create new income
+- `POST /api/income/bulk` - Bulk import income from CSV
+- `DELETE /api/income/:id` - Delete income
+
+### Wallets/Accounts
+- `GET /api/wallets` - Get all wallets
+- `GET /api/wallets/summary` - Get wallet summary
+- `POST /api/wallets` - Create new wallet
+- `POST /api/wallets/transfer` - Transfer money between wallets
+- `PUT /api/wallets/:id` - Update wallet
+- `DELETE /api/wallets/:id` - Delete wallet
+
+### Transactions
+- `GET /api/transactions/recent` - Get recent transactions
+- `GET /api/transactions/stats` - Get transaction statistics
+
 ## Features Overview
+
+### CSV Import Feature 📥
+Import your financial data from CSV files:
+- **Bulk Import**: Import hundreds of transactions at once
+- **Auto-Detection**: Automatically detects column names and categories
+- **Template Download**: Get a sample CSV template to start
+- **Flexible Mapping**: Map any CSV columns to transaction fields
+- **Data Validation**: Validates dates, amounts, and categories
+- **Balance Updates**: Automatically updates account balances
+- **Visualization**: Imported data appears immediately in charts and reports
+
+See [CSV_IMPORT_GUIDE.md](./CSV_IMPORT_GUIDE.md) for detailed instructions.
 
 ### Authentication System
 - Secure password hashing with bcrypt
@@ -136,19 +183,45 @@ expense-tracker/
 
 ### Dashboard
 - Financial overview with key metrics
+- Real-time stats (total spent, balance, transactions, budget usage)
+- Spending visualization with charts
+- Budget progress bar with color coding
 - Responsive sidebar navigation
 - Mobile-friendly design
 - Protected routes
+- Quick action buttons
 
 ### Expense Management
-- Expense categorization
-- Transaction history
-- Visual spending breakdown
+- Add/edit/delete expenses
+- 8 expense categories with emoji icons
+- Expense categorization and tracking
+- Transaction history with filtering
+- Visual spending breakdown by category
+- CSV bulk import
+- Real-time balance updates
 
-### Wallet Management
-- Multiple account support
-- Transaction tracking
+### Income Management
+- Add/track income sources
+- Income vs expense comparison
+- Income summary and statistics
+- CSV bulk import for income data
+
+### Wallet/Account Management
+- Multiple account support (savings, credit card, debit card, cash, investment)
+- Account customization with colors
+- Transaction tracking across accounts
 - Account balance overview
+- Transfer money between accounts
+- Recent transaction history
+
+### Reports & Analytics
+- Summary page with custom date range picker
+- Expense breakdown by category
+- Income and expense comparison
+- Net balance calculation
+- Transaction statistics
+- Bar and line charts
+- Budget tracking
 
 ## Security Features
 

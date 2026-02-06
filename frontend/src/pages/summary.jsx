@@ -185,6 +185,26 @@ const Summary = () => {
                         <p className="dashboard-date">Financial reports and insights</p>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <select
+                            value={selectedPeriod}
+                            onChange={(e) => setSelectedPeriod(e.target.value)}
+                            style={{
+                                padding: '0.8rem 1.5rem',
+                                border: '1px solid #4a5f7a',
+                                borderRadius: '4px',
+                                backgroundColor: '#34495e',
+                                color: '#ecf0f1',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem',
+                                fontWeight: '600'
+                            }}
+                        >
+                            <option value="thisMonth">This Month</option>
+                            <option value="lastMonth">Last Month</option>
+                            <option value="last3Months">Last 3 Months</option>
+                            <option value="thisYear">This Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
                         <button 
                             className="tips-button" 
                             onClick={fetchSummaryData}

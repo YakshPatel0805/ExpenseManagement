@@ -182,4 +182,78 @@ router.delete('/api/income/:id', isAuthenticated, async (req, res) => {
   }
 });
 
+// POST /api/income/bulk - Bulk import income from CSV
+router.post('/api/income/bulk', isAuthenticated, async (req, res) => {
+  try {
+    const { transactions } = req.body;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
+
+    if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
+      return res.status(400).json({ success: false, message: 'No transactions provided' });
+    }
+
+    console.log(`Bulk importing ${transactions.length} income records for user:`, userId);
+
+    let successCount = 0;
+    let failedCount = 0;
+    const errors = [];
+
+    for (const txn of transactions) {
+      try {
+        // Verify wallet belongs to user
+        const wallet = await Wallet.findOne({ _id: txn.walletId, userId });
+        if (!wallet) {
+          errors.push({ transaction: txn, error: 'Wallet not found' });
+          failedCount++;
+          continue;
+        }
+
+        // Create income
+        const income = new Income({
+          userId,
+          title: txn.title || 'Imported Income',
+          amount: parseFloat(txn.amount),
+          walletId: txn.walletId,
+          description: txn.description || '',
+          date: txn.date ? new Date(txn.date) : new Date()
+        });
+
+        await income.save();
+
+        // Update wallet balance
+        wallet.balance += income.amount;
+        await wallet.save();
+
+        // Create transaction record
+        const transaction = new Transaction({
+          userId,
+          type: 'income',
+          amount: income.amount,
+          description: income.title,
+          toWalletId: txn.walletId,
+          date: income.date
+        });
+
+        await transaction.save();
+        successCount++;
+      } catch (error) {
+        console.error('Error importing income:', error);
+        errors.push({ transaction: txn, error: error.message });
+        failedCount++;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Imported ${successCount} income records successfully`,
+      count: successCount,
+      failed: failedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (error) {
+    console.error('Bulk import error:', error);
+    res.status(500).json({ success: false, message: 'Server error during bulk import' });
+  }
+});
+
 module.exports = router;

@@ -265,4 +265,82 @@ router.delete('/api/expenses/:id', isAuthenticated, async (req, res) => {
   }
 });
 
+// POST /api/expenses/bulk - Bulk import expenses from CSV
+router.post('/api/expenses/bulk', isAuthenticated, async (req, res) => {
+  try {
+    const { transactions } = req.body;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
+
+    if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
+      return res.status(400).json({ success: false, message: 'No transactions provided' });
+    }
+
+    console.log(`Bulk importing ${transactions.length} expenses for user:`, userId);
+
+    let successCount = 0;
+    let failedCount = 0;
+    const errors = [];
+
+    for (const txn of transactions) {
+      try {
+        // Verify wallet belongs to user
+        const wallet = await Wallet.findOne({ _id: txn.walletId, userId });
+        if (!wallet) {
+          errors.push({ transaction: txn, error: 'Wallet not found' });
+          failedCount++;
+          continue;
+        }
+
+        // Create expense
+        const expense = new Expense({
+          userId,
+          title: txn.title || 'Imported Transaction',
+          amount: parseFloat(txn.amount),
+          category: txn.category || 'other',
+          walletId: txn.walletId,
+          description: txn.description || '',
+          date: txn.date ? new Date(txn.date) : new Date(),
+          tags: txn.tags || []
+        });
+
+        await expense.save();
+
+        // Update wallet balance
+        wallet.balance -= expense.amount;
+        await wallet.save();
+
+        // Create transaction record
+        const transaction = new Transaction({
+          userId,
+          type: 'expense',
+          amount: expense.amount,
+          description: expense.title,
+          category: expense.category,
+          fromWalletId: txn.walletId,
+          date: expense.date,
+          expenseId: expense._id
+        });
+
+        await transaction.save();
+        successCount++;
+      } catch (error) {
+        console.error('Error importing transaction:', error);
+        errors.push({ transaction: txn, error: error.message });
+        failedCount++;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Imported ${successCount} expenses successfully`,
+      count: successCount,
+      failed: failedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (error) {
+    console.error('Bulk import error:', error);
+    res.status(500).json({ success: false, message: 'Server error during bulk import' });
+  }
+});
+
 module.exports = router;

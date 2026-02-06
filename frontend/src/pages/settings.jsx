@@ -119,6 +119,129 @@ const Settings = () => {
         }));
     };
 
+    const handleExportData = async () => {
+        try {
+            // Fetch all user data
+            const [expensesRes, incomeRes, walletsRes, transactionsRes] = await Promise.all([
+                fetch('/api/expenses?limit=10000', { credentials: 'include' }),
+                fetch('/api/income?limit=10000', { credentials: 'include' }),
+                fetch('/api/wallets', { credentials: 'include' }),
+                fetch('/api/transactions/recent?limit=10000', { credentials: 'include' })
+            ]);
+
+            const expenses = await expensesRes.json();
+            const income = await incomeRes.json();
+            const wallets = await walletsRes.json();
+            const transactions = await transactionsRes.json();
+
+            // Create export data object
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                user: {
+                    name: user?.name,
+                    email: user?.email
+                },
+                expenses: expenses.success ? expenses.expenses : [],
+                income: income.success ? income.income : [],
+                wallets: wallets.success ? wallets.wallets : [],
+                transactions: transactions.success ? transactions.transactions : []
+            };
+
+            // Convert to JSON and download
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = window.URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `expense-tracker-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            // Also create CSV exports
+            exportToCSV(exportData);
+
+            alert('Data exported successfully! Check your downloads folder.');
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            alert('Error exporting data. Please try again.');
+        }
+    };
+
+    const exportToCSV = (data) => {
+        // Export expenses to CSV
+        if (data.expenses.length > 0) {
+            const expenseCSV = convertToCSV(data.expenses, [
+                { key: 'date', label: 'Date' },
+                { key: 'title', label: 'Title' },
+                { key: 'amount', label: 'Amount' },
+                { key: 'category', label: 'Category' },
+                { key: 'description', label: 'Description' },
+                { key: 'walletId.name', label: 'Account' }
+            ]);
+            downloadCSV(expenseCSV, `expenses-${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        // Export income to CSV
+        if (data.income.length > 0) {
+            const incomeCSV = convertToCSV(data.income, [
+                { key: 'date', label: 'Date' },
+                { key: 'title', label: 'Title' },
+                { key: 'amount', label: 'Amount' },
+                { key: 'description', label: 'Description' },
+                { key: 'walletId.name', label: 'Account' }
+            ]);
+            downloadCSV(incomeCSV, `income-${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        // Export transactions to CSV
+        if (data.transactions.length > 0) {
+            const transactionCSV = convertToCSV(data.transactions, [
+                { key: 'date', label: 'Date' },
+                { key: 'type', label: 'Type' },
+                { key: 'amount', label: 'Amount' },
+                { key: 'description', label: 'Description' }
+            ]);
+            downloadCSV(transactionCSV, `transactions-${new Date().toISOString().split('T')[0]}.csv`);
+        }
+    };
+
+    const convertToCSV = (data, columns) => {
+        const header = columns.map(col => col.label).join(',');
+        const rows = data.map(item => {
+            return columns.map(col => {
+                const keys = col.key.split('.');
+                let value = item;
+                for (const key of keys) {
+                    value = value?.[key];
+                }
+                // Format dates
+                if (col.key === 'date' && value) {
+                    value = new Date(value).toISOString().split('T')[0];
+                }
+                // Escape commas and quotes
+                if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+                    value = `"${value.replace(/"/g, '""')}"`;
+                }
+                return value || '';
+            }).join(',');
+        });
+        return [header, ...rows].join('\n');
+    };
+
+    const downloadCSV = (csvContent, filename) => {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    };
+
     return (
         <DashboardLayout>
             <div id="settings-page" className="page-content">
@@ -351,9 +474,9 @@ const Settings = () => {
                                     color: '#ecf0f1',
                                     border: '1px solid #4a5f7a',
                                     borderRadius: '4px',
-                                    textAlign: 'right',
+                                    textAlign: 'center',
                                     cursor: 'pointer',
-                                    width: '50%'
+                                    width: 'auto'
                                 }}
                             >
                                 <option value="USD">USD ($)</option>
@@ -361,6 +484,7 @@ const Settings = () => {
                                 <option value="GBP">GBP (£)</option>
                                 <option value="CAD">CAD (C$)</option>
                                 <option value="AUD">AUD (A$)</option>
+                                <option value="INR">INR (₹)</option>
                             </select>
                         </div>
                         <div className="expense-item">
@@ -411,7 +535,7 @@ const Settings = () => {
                             <button 
                                 className="tips-button" 
                                 style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                                onClick={() => alert('Export feature coming soon!')}
+                                onClick={handleExportData}
                             >
                                 Export
                             </button>

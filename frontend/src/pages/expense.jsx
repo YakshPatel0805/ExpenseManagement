@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import ExpenseChart from '../components/ExpenseChart';
+import CSVImport from '../components/CSVImport';
 
 const Expense = () => {
     const [expenses, setExpenses] = useState([]);
@@ -25,6 +26,7 @@ const Expense = () => {
         date: new Date().toISOString().split('T')[0]
     });
     const [summary, setSummary] = useState([]);
+    const [showCSVImport, setShowCSVImport] = useState(false);
 
     useEffect(() => {
         fetchExpenses();
@@ -274,6 +276,13 @@ const Expense = () => {
                     <button 
                         className="tips-button" 
                         style={{height: 'fit-content'}}
+                        onClick={() => setShowCSVImport(!showCSVImport)}
+                    >
+                        📥 Import CSV
+                    </button>
+                    <button 
+                        className="tips-button" 
+                        style={{height: 'fit-content'}}
                         onClick={() => setShowIncomeForm(true)}
                     >
                         💵 Add Income
@@ -287,6 +296,17 @@ const Expense = () => {
                     </button>
                 </div>
             </div>
+
+            {/* CSV Import Component */}
+            {showCSVImport && (
+                <CSVImport 
+                    onImportComplete={() => {
+                        setShowCSVImport(false);
+                        fetchExpenses();
+                        fetchSummary();
+                    }}
+                />
+            )}
 
             {/* Add Expense Form */}
             {showAddForm && (
