@@ -248,6 +248,7 @@ const Summary = () => {
                                 <input
                                     type="date"
                                     value={customDateRange.startDate}
+                                    max={new Date().toISOString().split('T')[0]}
                                     onChange={(e) => setCustomDateRange({...customDateRange, startDate: e.target.value})}
                                     style={{
                                         width: '100%',
@@ -267,6 +268,7 @@ const Summary = () => {
                                 <input
                                     type="date"
                                     value={customDateRange.endDate}
+                                    max={new Date().toISOString().split('T')[0]}
                                     onChange={(e) => setCustomDateRange({...customDateRange, endDate: e.target.value})}
                                     style={{
                                         width: '100%',

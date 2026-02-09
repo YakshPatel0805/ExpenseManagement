@@ -91,20 +91,25 @@ router.post('/api/income', [
   body('amount').isFloat({ min: 0.01 }),
   body('walletId').isMongoId(),
   body('description').optional().trim().isLength({ max: 500 }),
-  body('date').optional().isISO8601()
+  body('date').optional().isISO8601(),
+  body('source').optional().isIn(['salary', 'freelance', 'investment', 'bonus', 'gift', 'other'])
 ], isAuthenticated, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.error('Validation errors:', errors.array());
       return res.status(400).json({ success: false, message: 'Invalid input data', errors: errors.array() });
     }
 
-    const { title, amount, walletId, description, date } = req.body;
+    const { title, amount, walletId, description, date, source } = req.body;
     const userId = new mongoose.Types.ObjectId(req.session.user.id);
+
+    console.log('Creating income with data:', { title, amount, walletId, description, date, source, userId });
 
     // Verify wallet belongs to user
     const wallet = await Wallet.findOne({ _id: walletId, userId });
     if (!wallet) {
+      console.error('Wallet not found:', walletId);
       return res.status(404).json({ success: false, message: 'Wallet not found' });
     }
 
@@ -114,15 +119,18 @@ router.post('/api/income', [
       title,
       amount,
       walletId,
-      description,
+      description: description || '',
+      source: source || 'other',
       date: date ? new Date(date) : new Date()
     });
 
     await income.save();
+    console.log('Income saved successfully:', income._id);
 
     // Update wallet balance
     wallet.balance += amount;
     await wallet.save();
+    console.log('Wallet balance updated:', wallet.balance);
 
     // Create transaction record
     const transaction = new Transaction({
@@ -130,11 +138,13 @@ router.post('/api/income', [
       type: 'income',
       amount,
       description: title,
+      source: source || 'other',
       toWalletId: walletId,
       date: income.date
     });
 
     await transaction.save();
+    console.log('Transaction created:', transaction._id);
 
     // Populate wallet info for response
     await income.populate('walletId', 'name type');
@@ -146,7 +156,8 @@ router.post('/api/income', [
     });
   } catch (error) {
     console.error('Create income error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ success: false, message: 'Server error: ' + error.message });
   }
 });
 
@@ -230,6 +241,7 @@ router.post('/api/income/bulk', isAuthenticated, async (req, res) => {
           type: 'income',
           amount: income.amount,
           description: income.title,
+          source: income.source || 'other',
           toWalletId: txn.walletId,
           date: income.date
         });

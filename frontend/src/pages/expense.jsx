@@ -23,6 +23,7 @@ const Expense = () => {
         amount: '',
         walletId: '',
         description: '',
+        source: 'other',
         date: new Date().toISOString().split('T')[0]
     });
     const [summary, setSummary] = useState([]);
@@ -56,9 +57,14 @@ const Expense = () => {
             const data = await response.json();
             if (data.success) {
                 setWallets(data.wallets);
-                // Only set default wallet if form doesn't have one selected
-                if (data.wallets.length > 0 && !formData.walletId) {
-                    setFormData(prev => ({ ...prev, walletId: data.wallets[0]._id }));
+                // Set default wallet for both forms if they don't have one selected
+                if (data.wallets.length > 0) {
+                    if (!formData.walletId) {
+                        setFormData(prev => ({ ...prev, walletId: data.wallets[0]._id }));
+                    }
+                    if (!incomeData.walletId) {
+                        setIncomeData(prev => ({ ...prev, walletId: data.wallets[0]._id }));
+                    }
                 }
             }
         } catch (error) {
@@ -172,6 +178,8 @@ const Expense = () => {
         }
 
         try {
+            console.log('Submitting income:', incomeData);
+            
             const response = await fetch('/api/income', {
                 method: 'POST',
                 headers: {
@@ -184,14 +192,19 @@ const Expense = () => {
                 }),
             });
 
-            const data = await response.json();
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
             
-            if (data.success) {
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            if (response.ok && data.success) {
                 await fetchExpenses();
                 await fetchSummary();
                 resetIncomeForm();
                 alert('Income added successfully!');
             } else {
+                console.error('Income submission failed:', data);
                 alert(data.message || 'Error adding income');
             }
         } catch (error) {
@@ -218,6 +231,7 @@ const Expense = () => {
             amount: '',
             walletId: '',
             description: '',
+            source: 'other',
             date: new Date().toISOString().split('T')[0]
         });
         setShowIncomeForm(false);
@@ -444,6 +458,7 @@ const Expense = () => {
                                 <input
                                     type="date"
                                     value={formData.date}
+                                    max={new Date().toISOString().split('T')[0]}
                                     onChange={(e) => setFormData({...formData, date: e.target.value})}
                                     style={{
                                         width: '100%',
@@ -600,6 +615,7 @@ const Expense = () => {
                                     <input
                                         type="date"
                                         value={incomeData.date}
+                                        max={new Date().toISOString().split('T')[0]}
                                         onChange={(e) => setIncomeData({...incomeData, date: e.target.value})}
                                         style={{
                                             width: '100%',

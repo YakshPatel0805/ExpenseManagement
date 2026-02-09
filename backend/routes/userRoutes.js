@@ -252,7 +252,6 @@ router.delete("/api/account", isAuthenticated, async (req, res) => {
     const Income = require('../models/Income');
     const Wallet = require('../models/Wallet');
     const Transaction = require('../models/Transaction');
-    const Budget = require('../models/Budget');
 
     // Delete all user data in parallel
     const deleteResults = await Promise.allSettled([
@@ -260,14 +259,16 @@ router.delete("/api/account", isAuthenticated, async (req, res) => {
       Income.deleteMany({ userId: userObjectId }),
       Wallet.deleteMany({ userId: userObjectId }),
       Transaction.deleteMany({ userId: userObjectId }),
-      Budget.deleteMany({ userId: userObjectId }).catch(() => null), // Budget model might not exist
       User.findByIdAndDelete(userId)
     ]);
 
-    console.log('Delete results:', deleteResults.map(r => r.status));
+    console.log('Delete results:', deleteResults.map(r => ({ status: r.status, value: r.value })));
 
-    // Count successful deletions
-    const successCount = deleteResults.filter(r => r.status === 'fulfilled').length;
+    // Check if any critical deletion failed
+    const failedDeletions = deleteResults.filter(r => r.status === 'rejected');
+    if (failedDeletions.length > 0) {
+      console.error('Some deletions failed:', failedDeletions);
+    }
 
     // Destroy session
     req.session.destroy((err) => {
@@ -278,15 +279,14 @@ router.delete("/api/account", isAuthenticated, async (req, res) => {
 
     res.json({
       success: true,
-      message: "Account and all associated data deleted successfully",
-      deletedItems: successCount
+      message: "Account and all associated data deleted successfully"
     });
 
   } catch (error) {
     console.error('Delete account error:', error);
     res.status(500).json({
       success: false,
-      message: "Error deleting account. Please try again."
+      message: "Error deleting account: " + error.message
     });
   }
 });

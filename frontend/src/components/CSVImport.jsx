@@ -104,8 +104,26 @@ const CSVImport = ({ onImportComplete }) => {
         Papa.parse(file, {
             header: true,
             complete: async (results) => {
+                const today = new Date();
+                today.setHours(23, 59, 59, 999); // End of today
+                
+                let skippedCount = 0;
                 const transactions = results.data
-                    .filter(row => row[mapping.amount] && parseFloat(row[mapping.amount]) > 0)
+                    .filter(row => {
+                        if (!row[mapping.amount] || parseFloat(row[mapping.amount]) <= 0) {
+                            return false;
+                        }
+                        
+                        // Check if date is in the future
+                        const rowDate = new Date(row[mapping.date] || new Date());
+                        if (rowDate > today) {
+                            skippedCount++;
+                            console.log('Skipping future date:', row[mapping.date]);
+                            return false;
+                        }
+                        
+                        return true;
+                    })
                     .map(row => ({
                         date: row[mapping.date] || new Date().toISOString().split('T')[0],
                         title: row[mapping.title] || 'Imported Transaction',
@@ -116,6 +134,13 @@ const CSVImport = ({ onImportComplete }) => {
                     }));
 
                 console.log('Importing transactions:', transactions);
+                console.log('Skipped future dates:', skippedCount);
+
+                if (transactions.length === 0) {
+                    alert('No valid transactions to import. All records were either invalid or had future dates.');
+                    setImporting(false);
+                    return;
+                }
 
                 try {
                     const endpoint = mapping.type === 'income' ? '/api/income/bulk' : '/api/expenses/bulk';
@@ -131,7 +156,11 @@ const CSVImport = ({ onImportComplete }) => {
                     const data = await response.json();
                     
                     if (data.success) {
-                        alert(`Successfully imported ${data.count || transactions.length} transactions!`);
+                        let message = `Successfully imported ${data.count || transactions.length} transactions!`;
+                        if (skippedCount > 0) {
+                            message += `\n\n⚠️ Skipped ${skippedCount} record(s) with future dates.`;
+                        }
+                        alert(message);
                         setFile(null);
                         setPreview(null);
                         if (onImportComplete) onImportComplete();

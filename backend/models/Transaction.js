@@ -22,7 +22,12 @@ const transactionSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: function() { return this.type === 'expense' || this.type === 'income'; }
+        required: function() { return this.type === 'expense'; }
+    },
+    source: {
+        type: String,
+        enum: ['salary', 'freelance', 'investment', 'bonus', 'gift', 'other'],
+        required: function() { return this.type === 'income'; }
     },
     fromWalletId: {
         type: mongoose.Schema.Types.ObjectId,
