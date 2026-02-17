@@ -1,72 +1,72 @@
-# ExpenseTracker - React SPA
+# 💰 Expense Tracker - Full Stack Application
 
-A modern expense tracking application built with React frontend and Express.js backend.
+A modern, feature-rich expense tracking application built with React and Express.js. Track your expenses, manage multiple accounts, visualize spending patterns, and take control of your finances.
 
-## Features
+![License](https://img.shields.io/badge/license-ISC-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
+![React](https://img.shields.io/badge/react-18.2.0-blue.svg)
 
-- 🔐 User authentication (signup/login)
-- 📊 Dashboard with financial overview
-- 💰 Expense tracking and categorization
-- 💵 Income tracking and management
-- 👛 Multi-wallet/account support
-- 💸 Money transfer between accounts
-- 📥 **CSV Import** - Bulk import expenses/income from CSV files
-- 📈 Data visualization with charts (Chart.js)
-- 📅 Custom date range filtering
-- 🎯 Budget tracking with progress indicators
-- 📱 Responsive design
-- 🔒 Secure session management
-- ⚡ Single Page Application (SPA) behavior
+## ✨ Features
 
-## Tech Stack
+### 🔐 Authentication & Security
+- Secure user registration and login
+- Password hashing with bcrypt
+- Session-based authentication
+- Protected routes and API endpoints
+- Rate limiting to prevent abuse
+- Helmet.js security headers
 
-### Frontend
-- React 18
-- React Router DOM v7
-- Context API for state management
-- Chart.js + react-chartjs-2 for data visualization
-- PapaParse for CSV parsing
-- CSS3 with responsive design
+### 📊 Dashboard & Analytics
+- Real-time financial overview
+- Key metrics display (total spent, balance, transactions, budget usage)
+- Interactive spending charts with Chart.js
+- Budget progress tracking with color-coded indicators
+- Custom date range filtering (This Month, Last 3 Months, This Year, Custom Range)
+- Responsive design for all devices
 
-### Backend
-- Node.js + Express.js
-- MongoDB + Mongoose
-- bcrypt for password hashing
-- express-session for authentication
-- Helmet for security
-- Rate limiting
+### 💸 Expense Management
+- Add, edit, and delete expenses
+- 8 expense categories with emoji icons:
+  - 🍔 Food & Dining
+  - 🚗 Transportation
+  - 🏠 Housing
+  - 🎬 Entertainment
+  - 🏥 Healthcare
+  - 🛒 Shopping
+  - 💼 Business
+  - 📚 Education
+- Transaction history with filtering
+- Visual spending breakdown by category
+- CSV bulk import for expenses
 
-## Setup Instructions
+### 💵 Income Tracking
+- Track multiple income sources
+- Income vs expense comparison
+- Income summary and statistics
+- CSV bulk import for income data
 
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (local or cloud)
-- npm or yarn
+### 👛 Multi-Wallet/Account Support
+- Manage multiple accounts:
+  - 💳 Credit Card
+  - 💳 Debit Card
+  - 🏦 Savings
+  - 🏦 Checking
+  - 💵 Cash
+  - 📈 Investment
+  - 👛 Other
+- Customizable account colors and icons
+- Real-time balance tracking
+- Transfer money between accounts
+- Transaction history per account
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd expense-tracker
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   Create a `.env` file in the root directory:
-   ```env
-   SESSION_SECRET=your-super-secret-session-key-here-change-this-in-production
-   MONGO_URL=mongodb://localhost:27017/expense-tracker
-   NODE_ENV=development
-   ```
-
-4. **Build the React frontend**
-   ```bash
-   npm run build
+### 📥 CSV Import Feature
+- Bulk import expenses and income from CSV files
+- Auto-detection of column names and categories
+- Downloadable CSV template
+- Flexible column mapping
+- Data validation (dates, amounts, categories)
+- Automatic balance updates
+- Instant visualiza
    ```
 
 5. **Start the application**
@@ -97,33 +97,54 @@ To run in development mode with hot reloading:
 
 ```
 expense-tracker/
-├── backend/
-│   ├── models/
-│   │   └── User.js
-│   └── routes/
-│       └── userRoutes.js
+├── server/
+│   ├── models/              # Database models
+│   │   ├── User.js
+│   │   ├── Expense.js
+│   │   ├── Income.js
+│   │   ├── Transaction.js
+│   │   └── Wallet.js
+│   ├── routes/              # API routes
+│   │   ├── userRoutes.js
+│   │   ├── expenseRoutes.js
+│   │   ├── incomeRoutes.js
+│   │   ├── transactionRoutes.js
+│   │   └── walletRoutes.js
+│   ├── middleware/          # Custom middleware
+│   ├── config/              # Configuration files
+│   └── server.js            # Main server file
 ├── frontend/
 │   ├── public/
 │   │   └── index.html
 │   ├── src/
-│   │   ├── components/
+│   │   ├── components/      # Reusable components
 │   │   │   ├── DashboardLayout.jsx
-│   │   │   └── ProtectedRoute.jsx
-│   │   ├── context/
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── ExpenseChart.jsx
+│   │   │   └── CSVImport.jsx
+│   │   ├── context/         # React context
 │   │   │   └── AuthContext.jsx
-│   │   ├── pages/
+│   │   ├── pages/           # Page components
 │   │   │   ├── index.jsx
 │   │   │   ├── login.jsx
 │   │   │   ├── signup.jsx
 │   │   │   ├── dashboard.jsx
 │   │   │   ├── expense.jsx
-│   │   │   └── wallets.jsx
+│   │   │   ├── accounts.jsx
+│   │   │   ├── wallets.jsx
+│   │   │   ├── summary.jsx
+│   │   │   └── settings.jsx
+│   │   ├── services/        # API service layer
+│   │   │   └── api.js
 │   │   ├── App.jsx
-│   │   └── index.jsx
+│   │   ├── index.jsx
+│   │   └── global.css
 │   └── package.json
-├── app.js
-├── package.json
-└── .env
+├── .env                     # Environment variables
+├── .gitignore
+├── package.json             # Root package.json
+├── README.md
+└── TESTING_GUIDE.md
 ```
 
 ## API Endpoints
