@@ -33,7 +33,7 @@ router.get('/api/wallets', isAuthenticated, async (req, res) => {
 // GET /api/wallets/summary - Get wallet summary
 router.get('/api/wallets/summary', isAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = new mongoose.Types.ObjectId(req.session.user.id);
     
     const summary = await Wallet.aggregate([
       { $match: { userId: userId, isActive: true } },

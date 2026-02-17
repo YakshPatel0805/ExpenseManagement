@@ -303,7 +303,7 @@ const Summary = () => {
                     </div>
                 )}
 
-                {/* Debug Info (remove in production) */}
+                {/* Debug Info (remove in production)
                 {process.env.NODE_ENV === 'development' && (
                     <div className="chart-container" style={{ marginBottom: '2rem', background: '#f8f9fa' }}>
                         <h4>Debug Info</h4>
@@ -317,7 +317,7 @@ const Summary = () => {
                             <div>Raw Data: {JSON.stringify(summaryData, null, 2)}</div>
                         </div>
                     </div>
-                )}
+                )} */}
 
                 {/* Summary Cards */}
                 <div style={{
@@ -327,7 +327,7 @@ const Summary = () => {
                     marginBottom: '2rem'
                 }}>
                     <div className="chart-container">
-                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Income</h4>
+                        <h4 style={{ color: '#dcdfe2ff', marginBottom: '1rem' }}>Income</h4>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                             <div>
                                 <div style={{ color: '#2ecc71', fontWeight: 'bold', marginBottom: '0.5rem' }}>Total Income</div>
@@ -339,7 +339,7 @@ const Summary = () => {
                     </div>
 
                     <div className="chart-container">
-                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Expenses</h4>
+                        <h4 style={{ color: '#dcdfe2ff', marginBottom: '1rem' }}>Expenses</h4>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                             <div>
                                 <div style={{ color: '#e74c3c', fontWeight: 'bold', marginBottom: '0.5rem' }}>Total Expenses</div>
@@ -351,7 +351,7 @@ const Summary = () => {
                     </div>
 
                     <div className="chart-container">
-                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Net Amount</h4>
+                        <h4 style={{ color: '#dcdfe2ff', marginBottom: '1rem' }}>Net Amount</h4>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                             <div>
                                 <div style={{ 
@@ -374,12 +374,13 @@ const Summary = () => {
                     </div>
 
                     <div className="chart-container">
-                        <h4 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Transaction Overview</h4>
+                        <h4 style={{ color: '#dcdfe2ff', marginBottom: '1rem' }}>Transaction Overview</h4>
                         <div style={{ marginBottom: '1rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                 <span>Total Transactions</span>
                                 <span style={{ fontWeight: 'bold' }}>{summaryData.transactionStats.transactionCount}</span>
                             </div>
+                            <br />
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                 <span>Period</span>
                                 <span style={{ fontWeight: 'bold' }}>{getPeriodLabel(selectedPeriod)}</span>

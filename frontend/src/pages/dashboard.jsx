@@ -46,9 +46,13 @@ const Dashboard = () => {
         sessionStorage.setItem('dashboardCustomDateRange', JSON.stringify(customDateRange));
     }, [customDateRange]);
 
-    const fetchAllData = () => {
-        fetchWalletSummary();
-        fetchExpenseStats();
+    const fetchAllData = async () => {
+        setLoading(true);
+        await Promise.all([
+            fetchWalletSummary(),
+            fetchExpenseStats()
+        ]);
+        setLoading(false);
     };
 
     const fetchWalletSummary = async () => {
@@ -58,7 +62,7 @@ const Dashboard = () => {
             });
             const data = await response.json();
             
-            console.log('Wallet summary response:', data);
+            // console.log('Wallet summary response:', data);
             
             if (data.success) {
                 setWalletSummary(data.summary);
@@ -106,8 +110,6 @@ const Dashboard = () => {
             }
         } catch (error) {
             console.error('Error fetching expense stats:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
