@@ -70,11 +70,10 @@ A modern, feature-rich expense tracking application built with React and Express
    ```
 
 5. **Start the application**
-   ```bash
-   npm start
-   ```
+first create .env file and write connections:
 
-   The application will be available at `http://localhost:3000`
+MONGO_URL=''
+SESSION_SECRET=''
 
 ### Development Mode
 
@@ -87,7 +86,8 @@ To run in development mode with hot reloading:
 
 2. **In a new terminal, start the React development server**
    ```bash
-   npm run dev-frontend
+   cd frontend
+   npm start
    ```
 
    - Backend: `http://localhost:3000`

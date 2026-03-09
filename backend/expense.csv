@@ -1,0 +1,99 @@
+date,title,amount,category,description
+2026-01-01,Bus Ticket,10.00,transportation,Daily commute
+2026-01-02,Coffee Shop,6.50,food,Morning coffee
+2026-01-03,Movie Ticket,12.00,entertainment,Weekend movie
+2026-01-04,Water Bill,30.00,utilities,Monthly bill
+2026-01-05,Lunch Cafe,18.75,food,Office lunch
+2026-01-06,Uber Ride,14.20,transportation,Airport drop
+2026-01-07,Amazon Purchase,45.99,shopping,Online shopping
+2026-01-08,Electric Bill,110.00,utilities,Electricity payment
+2026-01-09,Gym Membership,40.00,health,Monthly gym fee
+2026-01-10,Bookstore,22.50,education,Bought programming book
+2026-01-11,Pharmacy,16.40,health,Medicines
+2026-01-12,Restaurant Dinner,55.00,food,Family dinner
+2026-01-13,Parking Fee,8.00,transportation,Mall parking
+2026-01-14,Spotify Subscription,9.99,entertainment,Music subscription
+2026-01-15,Grocery Shopping,85.50,food,Weekly groceries
+2026-01-16,Gas Station,45.00,transportation,Fuel
+2026-01-17,Netflix Subscription,15.99,entertainment,Monthly subscription
+2026-01-18,Electric Bill,120.00,utilities,January bill
+2026-01-19,Restaurant Dinner,65.00,food,Dinner with friends
+2026-01-20,Mobile Recharge,20.00,utilities,Phone recharge
+2026-01-21,Online Course,60.00,education,Programming course
+2026-01-22,Taxi Ride,13.50,transportation,City travel
+2026-01-23,Bakery,11.25,food,Bread and snacks
+2026-01-24,Clothing Store,75.00,shopping,Bought clothes
+2026-01-25,Doctor Visit,50.00,health,General checkup
+2026-01-26,Pet Food,28.00,shopping,Dog food
+2026-01-27,Internet Bill,45.00,utilities,Monthly wifi bill
+2026-01-28,Ice Cream Shop,7.50,food,Dessert
+2026-01-29,Train Ticket,30.00,transportation,Travel to city
+2026-01-30,Video Game,59.99,entertainment,New game purchase
+2026-02-01,Grocery Store,90.20,food,Weekly groceries
+2026-02-02,Cinema Snacks,14.75,entertainment,Popcorn and drinks
+2026-02-03,Bus Pass,35.00,transportation,Monthly bus pass
+2026-02-04,Electric Bill,115.00,utilities,February bill
+2026-02-05,Laptop Accessories,25.99,shopping,Mouse and pad
+2026-02-06,Cafe Breakfast,9.80,food,Breakfast meeting
+2026-02-07,Pharmacy Purchase,12.30,health,Vitamins
+2026-02-08,Parking Ticket,5.00,transportation,Street parking
+2026-02-09,Streaming Service,12.99,entertainment,Video subscription
+2026-02-10,Stationery Shop,18.00,education,Notebooks and pens
+2026-02-11,Dinner Takeaway,22.40,food,Takeaway meal
+2026-02-12,Car Wash,15.00,transportation,Vehicle cleaning
+2026-02-13,Water Bill,28.00,utilities,Monthly bill
+2026-02-14,Valentine Dinner,80.00,food,Special dinner
+2026-02-15,Online Shopping,49.90,shopping,Electronics accessories
+2026-02-16,Dentist Visit,70.00,health,Dental checkup
+2026-02-17,Taxi Fare,17.50,transportation,Night travel
+2026-02-18,Concert Ticket,95.00,entertainment,Live concert
+2026-02-19,Grocery Store,88.60,food,Weekly groceries
+2026-02-20,Internet Bill,42.00,utilities,Monthly wifi payment
+2026-02-21,Metro Ticket,6.00,transportation,Daily commute
+2026-02-22,Burger Meal,12.50,food,Fast food lunch
+2026-02-23,Online Movie Rental,7.99,entertainment,Movie night
+2026-02-24,Electric Bill,118.00,utilities,Monthly electricity
+2026-02-25,Supermarket,76.30,food,Groceries
+2026-02-26,Taxi Ride,16.80,transportation,City ride
+2026-02-27,Headphones Purchase,59.99,shopping,Electronics
+2026-02-28,Gym Protein,35.00,health,Supplement purchase
+2026-03-01,Library Fee,10.00,education,Monthly membership
+2026-03-02,Tea Stall,3.50,food,Evening tea
+2026-03-03,Movie Ticket,11.00,entertainment,Weekend movie
+2026-03-04,Bus Ticket,9.00,transportation,Daily commute
+2026-03-05,Water Bill,32.00,utilities,Monthly bill
+2026-03-06,Restaurant Lunch,25.50,food,Business lunch
+2026-03-07,Online Shopping,66.00,shopping,Clothing
+2026-03-08,Doctor Visit,48.00,health,General checkup
+2026-03-09,Taxi Ride,19.00,transportation,Airport pickup
+2026-03-10,Streaming Subscription,13.99,entertainment,Video service
+2026-03-11,Supermarket,82.70,food,Weekly groceries
+2026-03-12,Electric Bill,122.00,utilities,Monthly bill
+2026-03-13,Coffee Shop,7.20,food,Coffee break
+2026-03-14,Train Ticket,34.00,transportation,Outstation travel
+2026-03-15,Book Purchase,19.99,education,Learning material
+2026-03-16,Clothing Store,95.00,shopping,New jacket
+2026-03-17,Pharmacy,14.60,health,Medicines
+2026-03-18,Restaurant Dinner,72.00,food,Dinner with family
+2026-03-19,Parking Fee,6.00,transportation,Mall parking
+2026-03-20,Internet Bill,44.00,utilities,Monthly wifi
+2026-03-21,Ice Cream Shop,5.50,food,Dessert
+2026-03-22,Video Game,58.00,entertainment,Game purchase
+2026-03-23,Grocery Store,91.20,food,Groceries
+2026-03-24,Bus Pass,36.00,transportation,Monthly pass
+2026-03-25,Electric Bill,119.00,utilities,Monthly electricity
+2026-03-26,Online Course,75.00,education,Tech course
+2026-03-27,Shoes Purchase,68.00,shopping,Footwear
+2026-03-28,Dentist Visit,65.00,health,Dental cleaning
+2026-03-29,Restaurant Lunch,24.00,food,Weekend lunch
+2026-03-30,Taxi Ride,15.40,transportation,City travel
+2026-03-31,Concert Ticket,102.00,entertainment,Music concert
+2026-04-01,Grocery Store,87.30,food,Weekly groceries
+2026-04-02,Water Bill,31.00,utilities,Monthly bill
+2026-04-03,Coffee Shop,6.80,food,Morning coffee
+2026-04-04,Bus Ticket,10.00,transportation,Daily commute
+2026-04-05,Online Shopping,54.00,shopping,Electronics
+2026-04-06,Doctor Visit,52.00,health,Health checkup
+2026-04-07,Restaurant Dinner,70.00,food,Dinner outing
+2026-04-08,Streaming Service,12.99,entertainment,Monthly subscription
+2026-04-09,Electric Bill,121.00,utilities,Monthly bill
